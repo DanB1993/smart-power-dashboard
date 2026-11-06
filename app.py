@@ -16,11 +16,25 @@ from socketserver import ThreadingMixIn
 from urllib.parse import urlparse, parse_qs
 from discovery import load_config, save_config, scan_network_for_devices, DNO_REGIONS, TARIFF_TEMPLATES, BATTERY_PRESETS
 
+try:
+    from tapo import ApiClient
+    HAS_TAPO = True
+except ImportError:
+    HAS_TAPO = False
+
+try:
+    from kasa import Discover, Credentials
+    HAS_KASA = True
+except ImportError:
+    HAS_KASA = False
+
 app_config = load_config()
 
 INVERTER_HOST = os.environ.get("INVERTER_HOST", app_config.get("inverter", {}).get("host", "192.168.86.57"))
 INVERTER_PORT = int(os.environ.get("INVERTER_PORT", str(app_config.get("inverter", {}).get("port", 502))))
 INVERTER_UNIT = int(os.environ.get("INVERTER_UNIT", str(app_config.get("inverter", {}).get("unit_id", 247))))
+BATTERY_CAPACITY_KWH = float(app_config.get("battery", {}).get("gross_capacity_kwh", 9.84))
+BATTERY_USABLE_KWH = float(app_config.get("battery", {}).get("usable_capacity_kwh", 8.86))
 HUE_HOST = os.environ.get("HUE_HOST", app_config.get("devices", {}).get("hue", {}).get("host", "192.168.0.182"))
 HUE_API_KEY = os.environ.get("HUE_API_KEY", app_config.get("devices", {}).get("hue", {}).get("api_key", "bDOYJFQoNi8qNgZmToKOZeHJG5CeBfUqf5tZwyi-"))
 OCTOPUS_API_KEY = os.environ.get("OCTOPUS_API_KEY", app_config.get("tariff", {}).get("api_key", "sk_live_2HxM6vnfzFnhO4eATrru4aUbJ74maA5c"))
